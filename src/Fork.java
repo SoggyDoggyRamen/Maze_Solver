@@ -1,8 +1,9 @@
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 public class Fork {
     private int forkx;
     private int forky;
-    private ArrayList<String> directions;
+    private ArrayList<String> directions = new ArrayList<String>();
     private boolean checked;
     private String lastChecked;
 
@@ -15,12 +16,6 @@ public class Fork {
         boolean checked = false;
     }
 
-    public boolean isDeadend() {
-        if (directions.isEmpty()) {
-            return true;
-        }
-        return false;
-    }
     public String getDirection() {
         String direction = directions.get(0);
         lastChecked = direction;
@@ -28,12 +23,16 @@ public class Fork {
         return direction;
     }
 
-    public boolean checkFinished() {
-        if (directions.isEmpty()) {
-            checked = true;
-        }
-        return checked;
+    //true if empty false if it has something
+    public boolean isEmpty() {
+        return directions.isEmpty();
     }
 
-    
+    public int getForkx() {
+        return forkx;
+    }
+
+    public int getForky() {
+        return forky;
+    }
 }

@@ -8,21 +8,75 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
         String[][] maze = getMaze("data/maze");
-        int currx = 0;
-        int curry = 0;
-        int lastForkx = 0;
-        int lastForky = 0;
-        String lastDirection = "";
-        String[] lastdirectionNotTaken = new String[2];
-        ArrayList<String> directions = checkSurrounding(maze, currx, curry, "South");
-        if (direction.size() == 2) {
-            lastDirection = directions.get(0);
-            lastDirectionNotTaken =
-        }
-        while (!(currx == maze.length)) {
-            String direction = checkSurrounding(maze, currx, curry, String )
-        }
+        int currX = 0;
+        int currY = 0;
+        ArrayList<Fork> forks = new ArrayList<Fork>();
+        String lastDirection = "South";
+        while (!(currX == maze.length - 1 && currY == maze[0].length - 1)) {
+            System.out.print("(" + currX + ", " + currY + ") ---->");
+            ArrayList<String> directions = checkSurrounding(maze, currX, currY, lastDirection);
+            String direction = "";
+            //If there are multiple directions there is a fork
+            if (directions.size() > 1) {
+                Fork fork = new Fork(currX, currY, directions);
+                forks.add(fork);
+                direction = fork.getDirection();
+            }
 
+            //If there is only one direction just go there
+            else if (directions.size() == 1) {
+                direction = directions.get(0);
+            }
+
+            //If directions is empty, no area to go to
+            else {
+                Fork fork1 = forks.get(forks.size() - 1);
+                //Remove fork1 from the list and remove that path in the maze
+                if (fork1.isEmpty()) {
+                    forks.remove(forks.size() - 1);
+                    Fork fork2 = forks.get(forks.size() - 1);
+                    if (fork2.getForkx() < fork1.getForkx()) {
+                        maze[fork2.getForkx() - 1][fork2.getForky()] = "#";
+                    }
+                    if (fork2.getForkx() > fork1.getForkx()) {
+                        maze[fork2.getForkx() + 1][fork2.getForky()] = "#";
+                    }
+                    if (fork2.getForky() < fork1.getForky()) {
+                        maze[fork2.getForkx()][fork2.getForky() + 1] = "#";
+                    }
+                    if (fork2.getForky() > fork1.getForky()) {
+                        maze[fork2.getForkx()][fork2.getForky() - 1] = "#";
+                    }
+                    currX = fork2.getForkx();
+                    currY = fork2.getForky();
+                    direction = fork2.getDirection();
+                }
+                else {
+                    currX = fork1.getForkx();
+                    currY = fork1.getForky();
+                    direction = fork1.getDirection();
+                }
+            }
+            if (direction.equals("North")) {
+                currX --;
+            }
+            else if (direction.equals("East")) {
+                currY ++;
+            }
+            else if (direction.equals("South")) {
+                currX ++;
+            }
+            else if (direction.equals("West")) {
+                currY --;
+            }
+            lastDirection = direction;
+        }
+        for (String[] row: maze) {
+            for (String col: row) {
+                System.out.print(col);
+            }
+            System.out.println();
+        }
     }
 
     public static String[][] getMaze(String fileName) {
@@ -185,7 +239,6 @@ public class Main {
                 }
             }
         }
-
         return directions;
     }
 
