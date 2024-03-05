@@ -5,7 +5,7 @@ public class Fork {
     private int forky;
     private ArrayList<String> directions = new ArrayList<String>();
     private boolean checked;
-    private String lastChecked;
+    private String lastDirection;
 
     public Fork(int x, int y, ArrayList<String> directions) {
         forkx = x;
@@ -18,7 +18,7 @@ public class Fork {
 
     public String getDirection() {
         String direction = directions.get(0);
-        lastChecked = direction;
+        lastDirection = direction;
         directions.remove(0);
         return direction;
     }
@@ -35,4 +35,6 @@ public class Fork {
     public int getForky() {
         return forky;
     }
+
+    public String getLastDirection() { return lastDirection; }
 }

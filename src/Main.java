@@ -12,8 +12,11 @@ public class Main {
         int currY = 0;
         ArrayList<Fork> forks = new ArrayList<Fork>();
         String lastDirection = "South";
+        System.out.print("Original pathing solution: ");
+
+
         while (!(currX == maze.length - 1 && currY == maze[0].length - 1)) {
-            System.out.print("(" + currX + ", " + currY + ") ---->");
+            System.out.print("(" + currX + ", " + currY + ") ----> ");
             ArrayList<String> directions = checkSurrounding(maze, currX, currY, lastDirection);
             String direction = "";
             //If there are multiple directions there is a fork
@@ -52,6 +55,18 @@ public class Main {
                     direction = fork2.getDirection();
                 }
                 else {
+                    if (fork1.getLastDirection().equals("North")) {
+                        maze[fork1.getForkx() - 1][fork1.getForky()] = "#";
+                    }
+                    if (fork1.getLastDirection().equals("East")) {
+                        maze[fork1.getForkx()][fork1.getForky() + 1] = "#";
+                    }
+                    if (fork1.getLastDirection().equals("South")) {
+                        maze[fork1.getForkx() +1][fork1.getForky()] = "#";
+                    }
+                    if (fork1.getLastDirection().equals("West")) {
+                        maze[fork1.getForkx()][fork1.getForky() - 1] = "#";
+                    }
                     currX = fork1.getForkx();
                     currY = fork1.getForky();
                     direction = fork1.getDirection();
@@ -71,12 +86,41 @@ public class Main {
             }
             lastDirection = direction;
         }
+        System.out.println("(" + currX + ", " + currY + ")");
+        System.out.println();
+
+        System.out.println("Edited maze: ");
         for (String[] row: maze) {
             for (String col: row) {
                 System.out.print(col);
             }
             System.out.println();
         }
+        System.out.println();
+
+        currX = 0;
+        currY = 0;
+        lastDirection = "South";
+        System.out.print("Single path solution: ");
+        while (!(currX == maze.length - 1 && currY == maze[0].length - 1)) {
+            System.out.print("(" + currX + ", " + currY + ") ----> ");
+            ArrayList<String> directions = checkSurrounding(maze, currX, currY, lastDirection);
+            String direction = directions.get(0);
+            if (direction.equals("North")) {
+                currX --;
+            }
+            else if (direction.equals("East")) {
+                currY ++;
+            }
+            else if (direction.equals("South")) {
+                currX ++;
+            }
+            else if (direction.equals("West")) {
+                currY --;
+            }
+            lastDirection = direction;
+        }
+        System.out.print("(" + currX + ", " + currY + ")");
     }
 
     public static String[][] getMaze(String fileName) {
