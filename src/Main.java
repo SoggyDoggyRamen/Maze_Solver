@@ -8,12 +8,13 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
         String[][] maze = getMaze("data/maze");
+        String GREEN = "\u001B[32m";
+        String RESET = "\u001B[0m";
         int currX = 0;
         int currY = 0;
         ArrayList<Fork> forks = new ArrayList<Fork>();
         String lastDirection = "South";
         System.out.print("Original pathing solution: ");
-
 
         while (!(currX == maze.length - 1 && currY == maze[0].length - 1)) {
             System.out.print("(" + currX + ", " + currY + ") ----> ");
@@ -38,17 +39,24 @@ public class Main {
                 if (fork1.isEmpty()) {
                     forks.remove(forks.size() - 1);
                     Fork fork2 = forks.get(forks.size() - 1);
-                    if (fork2.getForkx() < fork1.getForkx()) {
+                    if (fork2.getLastDirection().equals("North")) {
                         maze[fork2.getForkx() - 1][fork2.getForky()] = "#";
                     }
-                    if (fork2.getForkx() > fork1.getForkx()) {
-                        maze[fork2.getForkx() + 1][fork2.getForky()] = "#";
-                    }
-                    if (fork2.getForky() < fork1.getForky()) {
+                    else if (fork2.getLastDirection().equals("East")) {
                         maze[fork2.getForkx()][fork2.getForky() + 1] = "#";
                     }
-                    if (fork2.getForky() > fork1.getForky()) {
+                    else if (fork2.getLastDirection().equals("South")) {
+                        maze[fork2.getForkx() +1][fork2.getForky()] = "#";
+                    }
+                    else if (fork2.getLastDirection().equals("West")) {
                         maze[fork2.getForkx()][fork2.getForky() - 1] = "#";
+                    }
+                    System.out.println("2 forks: ");
+                    for (String[] row: maze) {
+                        for (String col: row) {
+                            System.out.print(col);
+                        }
+                        System.out.println();
                     }
                     currX = fork2.getForkx();
                     currY = fork2.getForky();
@@ -58,13 +66,13 @@ public class Main {
                     if (fork1.getLastDirection().equals("North")) {
                         maze[fork1.getForkx() - 1][fork1.getForky()] = "#";
                     }
-                    if (fork1.getLastDirection().equals("East")) {
+                    else if (fork1.getLastDirection().equals("East")) {
                         maze[fork1.getForkx()][fork1.getForky() + 1] = "#";
                     }
-                    if (fork1.getLastDirection().equals("South")) {
+                    else if (fork1.getLastDirection().equals("South")) {
                         maze[fork1.getForkx() +1][fork1.getForky()] = "#";
                     }
-                    if (fork1.getLastDirection().equals("West")) {
+                    else if (fork1.getLastDirection().equals("West")) {
                         maze[fork1.getForkx()][fork1.getForky() - 1] = "#";
                     }
                     currX = fork1.getForkx();
@@ -103,6 +111,7 @@ public class Main {
         lastDirection = "South";
         System.out.print("Single path solution: ");
         while (!(currX == maze.length - 1 && currY == maze[0].length - 1)) {
+            maze[currX][currY] = GREEN + "V" + RESET;
             System.out.print("(" + currX + ", " + currY + ") ----> ");
             ArrayList<String> directions = checkSurrounding(maze, currX, currY, lastDirection);
             String direction = directions.get(0);
@@ -120,8 +129,19 @@ public class Main {
             }
             lastDirection = direction;
         }
-        System.out.print("(" + currX + ", " + currY + ")");
+        maze[currX][currY] = GREEN + "V" + RESET;
+        System.out.println("(" + currX + ", " + currY + ")");
+        System.out.println();
+        System.out.println("Final maze: ");
+        for (String[] row: maze) {
+            for (String col: row) {
+                System.out.print(col);
+            }
+            System.out.println();
+        }
+        System.out.println();
     }
+
 
     public static String[][] getMaze(String fileName) {
         File f = new File(fileName);
