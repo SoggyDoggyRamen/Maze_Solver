@@ -8,141 +8,23 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
         String[][] maze = getMaze("data/maze");
-        String GREEN = "\u001B[32m";
-        String RESET = "\u001B[0m";
-        int currX = 0;
-        int currY = 0;
-        ArrayList<Fork> forks = new ArrayList<Fork>();
-        String lastDirection = "South";
-        System.out.print("Original pathing solution: ");
-
-        while (!(currX == maze.length - 1 && currY == maze[0].length - 1)) {
-            System.out.print("(" + currX + ", " + currY + ") ----> ");
-            ArrayList<String> directions = checkSurrounding(maze, currX, currY, lastDirection);
-            String direction = "";
-            //If there are multiple directions there is a fork
-            if (directions.size() > 1) {
-                Fork fork = new Fork(currX, currY, directions);
-                forks.add(fork);
-                direction = fork.getDirection();
-            }
-
-            //If there is only one direction just go there
-            else if (directions.size() == 1) {
-                direction = directions.get(0);
-            }
-
-            //If directions is empty, no area to go to
-            else {
-                Fork fork1 = forks.get(forks.size() - 1);
-                //Remove fork1 from the list and remove that path in the maze
-                if (fork1.isEmpty()) {
-                    forks.remove(forks.size() - 1);
-                    Fork fork2 = forks.get(forks.size() - 1);
-                    if (fork2.getLastDirection().equals("North")) {
-                        maze[fork2.getForkx() - 1][fork2.getForky()] = "#";
-                    }
-                    else if (fork2.getLastDirection().equals("East")) {
-                        maze[fork2.getForkx()][fork2.getForky() + 1] = "#";
-                    }
-                    else if (fork2.getLastDirection().equals("South")) {
-                        maze[fork2.getForkx() +1][fork2.getForky()] = "#";
-                    }
-                    else if (fork2.getLastDirection().equals("West")) {
-                        maze[fork2.getForkx()][fork2.getForky() - 1] = "#";
-                    }
-                    System.out.println("2 forks: ");
-                    for (String[] row: maze) {
-                        for (String col: row) {
-                            System.out.print(col);
-                        }
-                        System.out.println();
-                    }
-                    currX = fork2.getForkx();
-                    currY = fork2.getForky();
-                    direction = fork2.getDirection();
-                }
-                else {
-                    if (fork1.getLastDirection().equals("North")) {
-                        maze[fork1.getForkx() - 1][fork1.getForky()] = "#";
-                    }
-                    else if (fork1.getLastDirection().equals("East")) {
-                        maze[fork1.getForkx()][fork1.getForky() + 1] = "#";
-                    }
-                    else if (fork1.getLastDirection().equals("South")) {
-                        maze[fork1.getForkx() +1][fork1.getForky()] = "#";
-                    }
-                    else if (fork1.getLastDirection().equals("West")) {
-                        maze[fork1.getForkx()][fork1.getForky() - 1] = "#";
-                    }
-                    currX = fork1.getForkx();
-                    currY = fork1.getForky();
-                    direction = fork1.getDirection();
-                }
-            }
-            if (direction.equals("North")) {
-                currX --;
-            }
-            else if (direction.equals("East")) {
-                currY ++;
-            }
-            else if (direction.equals("South")) {
-                currX ++;
-            }
-            else if (direction.equals("West")) {
-                currY --;
-            }
-            lastDirection = direction;
-        }
-        System.out.println("(" + currX + ", " + currY + ")");
+        MazeUtilities utilities = new MazeUtilities();
+        System.out.println("Original maze: ");
+        utilities.printMaze(maze);
         System.out.println();
-
+        String[][] editedMaze = utilities.solveMaze(maze);
         System.out.println("Edited maze: ");
-        for (String[] row: maze) {
-            for (String col: row) {
-                System.out.print(col);
-            }
-            System.out.println();
-        }
+        utilities.printMaze(editedMaze);
         System.out.println();
-
-        currX = 0;
-        currY = 0;
-        lastDirection = "South";
-        System.out.print("Single path solution: ");
-        while (!(currX == maze.length - 1 && currY == maze[0].length - 1)) {
-            maze[currX][currY] = GREEN + "V" + RESET;
-            System.out.print("(" + currX + ", " + currY + ") ----> ");
-            ArrayList<String> directions = checkSurrounding(maze, currX, currY, lastDirection);
-            String direction = directions.get(0);
-            if (direction.equals("North")) {
-                currX --;
-            }
-            else if (direction.equals("East")) {
-                currY ++;
-            }
-            else if (direction.equals("South")) {
-                currX ++;
-            }
-            else if (direction.equals("West")) {
-                currY --;
-            }
-            lastDirection = direction;
-        }
-        maze[currX][currY] = GREEN + "V" + RESET;
-        System.out.println("(" + currX + ", " + currY + ")");
+        System.out.println("Single path solution: ");
+        utilities.printSinglePathSolution(editedMaze);
+        System.out.println();
         System.out.println();
         System.out.println("Final maze: ");
-        for (String[] row: maze) {
-            for (String col: row) {
-                System.out.print(col);
-            }
-            System.out.println();
-        }
-        System.out.println();
+        utilities.printMaze(editedMaze);
     }
 
-
+    //Put maze into 2D Array
     public static String[][] getMaze(String fileName) {
         File f = new File(fileName);
         Scanner s = null;
@@ -170,140 +52,5 @@ public class Main {
             }
         }
         return maze;
-
     }
-
-
-    public static ArrayList<String> checkSurrounding(String[][] maze, int x, int y, String lastDirection) {
-        ArrayList<String> directions = new ArrayList<String>();
-        if (lastDirection.contains("North")) {
-            //move north
-            if (!(x == 0)) {
-                if (maze[x-1][y].equals(".")) {
-                    directions.add("North");
-                }
-                else if (!(maze[x-1][y].equals("#"))) {
-                    directions.add("North" + maze[x - 1][y]);
-                }
-            }
-
-            //move east
-            if (!(y == maze[0].length - 1)) {
-                if (maze[x][y+1].equals(".")) {
-                    directions.add("East");
-                }
-                else if (!(maze[x][y+1].equals("#"))) {
-                    directions.add("East" + maze[x][y+1]);
-                }
-            }
-
-            //move west
-            if (!(y == 0)) {
-                if (maze[x][y-1].equals(".")) {
-                    directions.add("West");
-                }
-                else if (!(maze[x][y-1].equals("#"))) {
-                    directions.add("West" + maze[x][y-1]);
-                }
-            }
-        }
-
-        if (lastDirection.contains("East")) {
-            //move north
-            if (!(x == 0)) {
-                if (maze[x-1][y].equals(".")) {
-                    directions.add("North");
-                }
-                else if (!(maze[x-1][y].equals("#"))) {
-                    directions.add("North" + maze[x - 1][y]);
-                }
-            }
-
-            //move east
-            if (!(y == maze[0].length - 1)) {
-                if (maze[x][y+1].equals(".")) {
-                    directions.add("East");
-                }
-                else if (!(maze[x][y+1].equals("#"))) {
-                    directions.add("East" + maze[x][y+1]);
-                }
-            }
-
-            //move south
-            if (!(x == maze.length - 1)) {
-                if (maze[x+1][y].equals(".")) {
-                    directions.add("South");
-                }
-                else if (!(maze[x+1][y].equals("#"))) {
-                    directions.add("South" + maze[x+1][y]);
-                }
-            }
-        }
-
-        if (lastDirection.contains("South")) {
-            //move east
-            if (!(y == maze[0].length - 1)) {
-                if (maze[x][y+1].equals(".")) {
-                    directions.add("East");
-                }
-                else if (!(maze[x][y+1].equals("#"))) {
-                    directions.add("East" + maze[x][y+1]);
-                }
-            }
-
-            //move south
-            if (!(x == maze.length - 1)) {
-                if (maze[x+1][y].equals(".")) {
-                    directions.add("South");
-                }
-                else if (!(maze[x+1][y].equals("#"))) {
-                    directions.add("South" + maze[x+1][y]);
-                }
-            }
-
-            //move west
-            if (!(y == 0)) {
-                if (maze[x][y-1].equals(".")) {
-                    directions.add("West");
-                }
-                else if (!(maze[x][y-1].equals("#"))) {
-                    directions.add("West" + maze[x][y-1]);
-                }
-            }
-        }
-
-        if (lastDirection.contains("West")) {
-            //move north
-            if (!(x == 0)) {
-                if (maze[x-1][y].equals(".")) {
-                    directions.add("North");
-                }
-                else if (!(maze[x-1][y].equals("#"))) {
-                    directions.add("North" + maze[x - 1][y]);
-                }
-            }
-
-            //move south
-            if (!(x == maze.length - 1)) {
-                if (maze[x+1][y].equals(".")) {
-                    directions.add("South");
-                }
-                else if (!(maze[x+1][y].equals("#"))) {
-                    directions.add("South" + maze[x+1][y]);
-                }
-            }
-
-            //move west
-            if (!(y == 0)) {
-                if (maze[x][y-1].equals(".")) {
-                    directions.add("West");
-                }
-                else if (!(maze[x][y-1].equals("#"))) {
-                    directions.add("West" + maze[x][y-1]);
-                }
-            }
-        }
-        return directions;
-    }
-
 }
